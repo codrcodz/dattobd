@@ -1859,10 +1859,10 @@ static int bio_make_read_clone(struct block_device *bdev, sector_t sect, unsigne
 	int ret;
 	struct bio *new_bio;
 	struct page *pg;
-	unsigned int i, bytes, total = 0;
+	unsigned int i, bytes, total = 0, actual_pages = (pages > BIO_MAX_PAGES)? BIO_MAX_PAGES : pages;
 	
 	//allocate bio clone
-	new_bio = bio_alloc(GFP_NOIO, pages);
+	new_bio = bio_alloc(GFP_NOIO, actual_pages);
 	if(!new_bio){
 		ret = -ENOMEM;
 		LOG_ERROR(ret, "error allocating bio clone");
@@ -1876,7 +1876,7 @@ static int bio_make_read_clone(struct block_device *bdev, sector_t sect, unsigne
 	bio_idx(new_bio) = 0;
 	
 	//fill the bio with pages
-	for(i = 0; i < pages; i++){
+	for(i = 0; i < actual_pages; i++){
 		//allocate a page and add it to our bio
 		pg = alloc_page(GFP_NOIO);
 		if(!pg){
